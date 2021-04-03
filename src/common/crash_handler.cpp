@@ -4,7 +4,7 @@
 #include <cinttypes>
 #include <cstdio>
 
-#ifdef _WIN32
+#if defined(_WIN32) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #include "windows_headers.h"
 
 #include "thirdparty/StackWalker.h"

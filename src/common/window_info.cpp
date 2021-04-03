@@ -2,7 +2,7 @@
 #include "common/log.h"
 Log_SetChannel(WindowInfo);
 
-#if defined(_WIN32)
+#if defined(_WIN32) && WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 
 #include "common/windows_headers.h"
 #include <dwmapi.h>

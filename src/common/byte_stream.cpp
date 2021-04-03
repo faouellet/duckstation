@@ -13,6 +13,7 @@
 #include "windows_headers.h"
 #include <direct.h>
 #include <io.h>
+#include <malloc.h>
 #include <share.h>
 #else
 #include <sys/stat.h>
@@ -877,8 +878,13 @@ std::unique_ptr<ByteStream> ByteStream_OpenFileStream(const char* fileName, u32 
   if ((openMode & (BYTESTREAM_OPEN_CREATE | BYTESTREAM_OPEN_WRITE)) == BYTESTREAM_OPEN_WRITE)
   {
     // if opening with write but not create, the path must exist.
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
     if (GetFileAttributes(fileName) == INVALID_FILE_ATTRIBUTES)
       return nullptr;
+#else
+    if (GetFileAttributesW(StringUtil::UTF8StringToWideString(fileName).c_str()) == INVALID_FILE_ATTRIBUTES)
+      return nullptr;
+#endif
   }
 
   char modeString[16];
@@ -888,7 +894,12 @@ std::unique_ptr<ByteStream> ByteStream_OpenFileStream(const char* fileName, u32 
   {
     // if the file exists, use r+, otherwise w+
     // HACK: if we're not truncating, and the file exists (we want to only update it), we still have to use r+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
     if ((openMode & BYTESTREAM_OPEN_TRUNCATE) || GetFileAttributes(fileName) == INVALID_FILE_ATTRIBUTES)
+#else
+    if ((openMode & BYTESTREAM_OPEN_TRUNCATE) ||
+        GetFileAttributes(StringUtil::UTF8StringToWideString(fileName).c_str()) == INVALID_FILE_ATTRIBUTES)
+#endif
     {
       modeString[modeStringLength++] = 'w';
       if (openMode & BYTESTREAM_OPEN_READ)
@@ -1006,8 +1017,14 @@ std::unique_ptr<ByteStream> ByteStream_OpenFileStream(const char* fileName, u32 
     DWORD desiredAccess = GENERIC_WRITE;
     if (openMode & BYTESTREAM_OPEN_READ)
       desiredAccess |= GENERIC_READ;
+
+#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
     HANDLE hFile =
       CreateFileW(wideTemporaryFileName.c_str(), desiredAccess, FILE_SHARE_DELETE, NULL, CREATE_NEW, 0, NULL);
+#else
+    HANDLE hFile = CreateFile2(wideTemporaryFileName.c_str(), desiredAccess, FILE_SHARE_DELETE, CREATE_NEW, nullptr);
+#endif
+
     if (hFile == INVALID_HANDLE_VALUE)
       return nullptr;
 
@@ -1168,8 +1185,8 @@ std::unique_ptr<ByteStream> ByteStream_OpenFileStream(const char* fileName, u32 
           }
           else // if (errno == ENOTDIR)
           {
-            // well.. someone's trying to open a fucking weird path that is comprised of both directories and files...
-            // I aint sticking around here to find out what disaster awaits... let fopen deal with it
+            // well.. someone's trying to open a fucking weird path that is comprised of both directories and
+            // files... I aint sticking around here to find out what disaster awaits... let fopen deal with it
             break;
           }
         }

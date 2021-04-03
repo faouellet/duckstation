@@ -361,6 +361,8 @@ bool D3D12HostDisplay::CreateSwapChain(const DXGI_MODE_DESC* fullscreen_mode)
   }
 
   DXGI_SWAP_CHAIN_DESC1 swap_chain_desc = {};
+  swap_chain_desc.Width = m_window_info.surface_width;
+  swap_chain_desc.Height = m_window_info.surface_height;
   swap_chain_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
   swap_chain_desc.SampleDesc.Count = 1;
   swap_chain_desc.BufferCount = 3;
