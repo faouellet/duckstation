@@ -2148,8 +2148,7 @@ bool CodeGenerator::Compile_Branch(const CodeBlockInstruction& cbi)
 {
   InstructionPrologue(cbi, 1);
 
-  auto DoBranch = [this, &cbi](Condition condition, const Value& lhs, const Value& rhs, Reg lr_reg,
-                               Value&& branch_target) {
+  auto DoBranch = [this, &cbi](Condition condition, Value lhs, Value rhs, Reg lr_reg, Value&& branch_target) {
     const bool can_link_block = cbi.is_direct_branch_instruction && g_settings.cpu_recompiler_block_linking;
 
     // ensure the lr register is flushed, since we want it's correct value after the branch
@@ -2215,6 +2214,9 @@ bool CodeGenerator::Compile_Branch(const CodeBlockInstruction& cbi)
         }
       }
     }
+
+    lhs.ReleaseAndClear();
+    rhs.ReleaseAndClear();
 
     // save the old PC if we want to
     if (lr_reg != Reg::count && lr_reg != Reg::zero)
@@ -2443,7 +2445,7 @@ bool CodeGenerator::Compile_Branch(const CodeBlockInstruction& cbi)
         Value lhs = m_register_cache.ReadGuestRegister(cbi.instruction.i.rs, true, true);
         Value rhs = m_register_cache.ReadGuestRegister(cbi.instruction.i.rt);
         const Condition condition = (cbi.instruction.op == InstructionOp::beq) ? Condition::Equal : Condition::NotEqual;
-        return DoBranch(condition, lhs, rhs, Reg::count, std::move(branch_target));
+        return DoBranch(condition, std::move(lhs), std::move(rhs), Reg::count, std::move(branch_target));
       }
     }
 
@@ -2481,7 +2483,7 @@ bool CodeGenerator::Compile_Branch(const CodeBlockInstruction& cbi)
         m_register_cache.WriteGuestRegister(Reg::ra, CalculatePC(4));
       }
 
-      return DoBranch(condition, lhs, Value(), Reg::count, std::move(branch_target));
+      return DoBranch(condition, std::move(lhs), Value(), Reg::count, std::move(branch_target));
     }
 
     default:
