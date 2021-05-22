@@ -2,6 +2,7 @@
 #include <array>
 #include <initializer_list>
 #include <utility>
+#include <vector>
 
 #include "common/jit_code_buffer.h"
 
@@ -25,6 +26,8 @@ public:
   static void AlignCodeBuffer(JitCodeBuffer* code_buffer);
 
   static bool BackpatchLoadStore(const LoadStoreBackpatchInfo& lbi);
+  static void BackpatchBranch(void* pc, u32 pc_size, void* target);
+  static void BackpatchReturn(void* pc, u32 pc_size);
 
   bool CompileBlock(CodeBlock* block, CodeBlock::HostCodePointer* out_host_code, u32* out_host_code_size);
 
@@ -34,8 +37,8 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Code Generation
   //////////////////////////////////////////////////////////////////////////
-  void EmitBeginBlock();
-  void EmitEndBlock();
+  void EmitBeginBlock(bool allocate_registers = true);
+  void EmitEndBlock(bool free_registers = true, bool emit_return = true);
   void EmitExceptionExit();
   void EmitExceptionExitOnBool(const Value& value);
   void FinalizeBlock(CodeBlock::HostCodePointer* out_host_code, u32* out_host_code_size);
@@ -104,6 +107,7 @@ public:
   void EmitConditionalBranch(Condition condition, bool invert, HostReg lhs, const Value& rhs, LabelType* label);
   void EmitConditionalBranch(Condition condition, bool invert, LabelType* label);
   void EmitBranchIfBitClear(HostReg reg, RegSize size, u8 bit, LabelType* label);
+  void EmitBranchIfBitSet(HostReg reg, RegSize size, u8 bit, LabelType* label);
   void EmitBindLabel(LabelType* label);
 
   u32 PrepareStackForCall();
@@ -205,6 +209,7 @@ private:
   Value GetCurrentInstructionPC(u32 offset = 0);
   void UpdateCurrentInstructionPC(bool commit);
   void WriteNewPC(const Value& value, bool commit);
+  void SyncPC();
 
   Value DoGTERegisterRead(u32 index);
   void DoGTERegisterWrite(u32 index, const Value& value);
