@@ -1258,6 +1258,7 @@ bool DoLoadState(ByteStream* state, bool force_software_renderer, bool update_di
     UpdateControllers();
     UpdateMemoryCardTypes();
     UpdateMultitaps();
+    Reset();
   }
   else
   {
