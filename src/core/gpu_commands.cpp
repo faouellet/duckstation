@@ -5,6 +5,7 @@
 #include "interrupt_controller.h"
 #include "system.h"
 #include "texture_replacements.h"
+#include "texture_dumper.h"
 Log_SetChannel(GPU);
 
 #define CHECK_COMMAND_SIZE(num_words)                                                                                  \
@@ -513,10 +514,10 @@ void GPU::FinishVRAMWrite()
                      m_blit_buffer.data(), true);
     }
 
-    if (g_settings.texture_replacements.ShouldDumpVRAMWrite(m_vram_transfer.width, m_vram_transfer.height))
+    if (g_settings.texture_replacements.dump_textures)
     {
-      g_texture_replacements.DumpVRAMWrite(m_vram_transfer.width, m_vram_transfer.height,
-                                           reinterpret_cast<const u16*>(m_blit_buffer.data()));
+      TextureDumper::AddVRAMWrite(m_vram_transfer.x, m_vram_transfer.y, m_vram_transfer.width, m_vram_transfer.height,
+                                   reinterpret_cast<const u16*>(m_blit_buffer.data()));
     }
 
     UpdateVRAM(m_vram_transfer.x, m_vram_transfer.y, m_vram_transfer.width, m_vram_transfer.height,

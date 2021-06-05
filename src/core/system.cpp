@@ -32,6 +32,7 @@
 #include "save_state_version.h"
 #include "sio.h"
 #include "spu.h"
+#include "texture_dumper.h"
 #include "texture_replacements.h"
 #include "timers.h"
 #include "xxhash.h"
@@ -950,6 +951,9 @@ bool Initialize(bool force_software_renderer)
 
   UpdateThrottlePeriod();
   UpdateMemorySaveStateSettings();
+
+  g_texture_replacements.Reload();
+
   return true;
 }
 
@@ -961,6 +965,7 @@ void Shutdown()
   ClearMemorySaveStates();
   s_runahead_audio_stream.reset();
 
+  TextureDumper::Shutdown();
   g_texture_replacements.Shutdown();
 
   g_sio.Shutdown();
@@ -1113,6 +1118,14 @@ bool DoState(StateWrapper& sw, HostDisplayTexture** host_texture, bool update_di
     UpdateOverclock();
   }
 
+  if (sw.IsReading())
+  {
+    g_texture_replacements.OnSystemReset();
+
+    if (g_settings.texture_replacements.IsAnyDumpingEnabled())
+      TextureDumper::ClearState();
+  }
+
   return !sw.HasError();
 }
 
@@ -1141,9 +1154,15 @@ void Reset()
   s_frame_number = 1;
   s_internal_frame_number = 0;
   TimingEvents::Reset();
-  ResetPerformanceCounters();
+
+  g_texture_replacements.OnSystemReset();
+
+  if (g_settings.texture_replacements.IsAnyDumpingEnabled())
+    TextureDumper::ClearState();
 
   g_gpu->ResetGraphicsAPIState();
+
+  ResetPerformanceCounters();
 }
 
 bool LoadState(ByteStream* state, bool update_display)
@@ -2083,7 +2102,7 @@ void UpdateRunningGame(const char* path, CDImage* image)
     }
   }
 
-  g_texture_replacements.SetGameID(s_running_game_code);
+  g_texture_replacements.Reload();
 
   g_host_interface->OnRunningGameChanged(s_running_game_path, image, s_running_game_code, s_running_game_title);
 }
