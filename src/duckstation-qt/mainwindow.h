@@ -14,6 +14,7 @@ class QThread;
 class GameListWidget;
 class QtHostInterface;
 class QtDisplayWidget;
+class TextureReplacementSettingsDialog;
 class AutoUpdaterDialog;
 class MemoryCardEditorDialog;
 class CheatManagerDialog;
@@ -99,6 +100,7 @@ private Q_SLOTS:
   void onToolsMemoryCardEditorTriggered();
   void onToolsCheatManagerTriggered();
   void onToolsOpenDataDirectoryTriggered();
+  void onTextureReplacementSettingsTriggered();
 
   void onGameListEntrySelected(const GameListEntry* entry);
   void onGameListEntryDoubleClicked(const GameListEntry* entry);
@@ -156,6 +158,7 @@ private:
   QLabel* m_status_resolution_widget = nullptr;
 
   SettingsDialog* m_settings_dialog = nullptr;
+  TextureReplacementSettingsDialog* m_texture_replacement_settings_dialog = nullptr;
   AutoUpdaterDialog* m_auto_updater_dialog = nullptr;
   MemoryCardEditorDialog* m_memory_card_editor_dialog = nullptr;
   CheatManagerDialog* m_cheat_manager_dialog = nullptr;

@@ -93,6 +93,7 @@
     <ClCompile Include="qtprogresscallback.cpp" />
     <ClCompile Include="qtutils.cpp" />
     <ClCompile Include="settingsdialog.cpp" />
+    <ClCompile Include="texturereplacementsettingsdialog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="aboutdialog.h" />
@@ -138,6 +139,7 @@
     <QtMoc Include="qthostinterface.h" />
     <ClInclude Include="qtutils.h" />
     <QtMoc Include="settingsdialog.h" />
+    <QtMoc Include="texturereplacementsettingsdialog.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\dep\imgui\imgui.vcxproj">
@@ -214,6 +216,9 @@
     <QtUi Include="cheatcodeeditordialog.ui">
       <FileType>Document</FileType>
     </QtUi>
+    <QtUi Include="texturereplacementsettingsdialog.ui">
+      <FileType>Document</FileType>
+    </QtUi>
   </ItemGroup>
   <ItemGroup>
     <QtResource Include="resources\resources.qrc">
@@ -260,6 +265,7 @@
     <ClCompile Include="$(IntDir)moc_qthostinterface.cpp" />
     <ClCompile Include="$(IntDir)moc_qtprogresscallback.cpp" />
     <ClCompile Include="$(IntDir)moc_settingsdialog.cpp" />
+    <ClCompile Include="$(IntDir)moc_texturereplacementsettingsdialog.cpp" />
     <ClCompile Include="$(IntDir)qrc_resources.cpp" />
   </ItemGroup>
   <ItemGroup>
